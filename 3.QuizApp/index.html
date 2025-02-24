@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .quiz-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 300px;
+            position: relative;
+        }
+        #options button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: #e0e0e0;
+            color: black;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #options button:hover, #options button.selected {
+            background: #b3d4fc;
+        }
+        #next-btn {
+            margin-top: 20px;
+            padding: 12px;
+            width: 100%;
+            background: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: none;
+        }
+        #next-btn:hover {
+            background: #0056b3;
+        }
+        #timer {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Quiz App</h1>
+        <p id="timer">Time Left: <span id="time">30</span>s</p>
+        <div id="quiz-box">
+            <p id="question">Loading...</p>
+            <div id="options"></div>
+            <button id="next-btn" onclick="nextQuestion()">Next</button>
+        </div>
+    </div>
+    <script>
+        const questions = [
+            { question: "What is 2 + 2?", options: ["3", "4", "5", "6"], answer: "4" },
+            { question: "What is the capital of France?", options: ["Berlin", "Madrid", "Paris", "Rome"], 
+             answer: "Paris" },
+            { question: "Which planet is known as the Red Planet?", options: ["Earth", "Mars", "Jupiter", "Saturn"], 
+             answer: "Mars" }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timeLeft = 30;
+        let timer;
+        let selectedAnswer = "";
+
+        function loadQuestion() {
+            clearInterval(timer);
+            timeLeft = 30;
+            document.getElementById("time").textContent = timeLeft;
+            document.getElementById("next-btn").style.display = "none";
+            selectedAnswer = "";
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById("time").textContent = timeLeft;
+                if (timeLeft === 0) nextQuestion();
+            }, 1000);
+
+            let questionData = questions[currentQuestionIndex];
+            document.getElementById("question").textContent = questionData.question;
+            let optionsHTML = "";
+            questionData.options.forEach(option => {
+                optionsHTML += `<button onclick="selectAnswer(this, '${option}')">${option}</button>`;
+            });
+            document.getElementById("options").innerHTML = optionsHTML;
+        }
+
+        function selectAnswer(button, answer) {
+            selectedAnswer = answer;
+            document.querySelectorAll("#options button").forEach(btn => btn.classList.remove("selected"));
+            button.classList.add("selected");
+            document.getElementById("next-btn").style.display = "block";
+        }
+
+        function nextQuestion() {
+            if (selectedAnswer === questions[currentQuestionIndex].answer) {
+                score++;
+            }
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                document.getElementById("quiz-box").innerHTML = `<h2>Quiz Over!</h2><p>Your Score: ${score}</p><button onclick="restartQuiz()">Play Again</button>`;
+                clearInterval(timer);
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            document.getElementById("quiz-box").innerHTML = `<p id="question">Loading...</p><div id="options"></div><button id="next-btn" onclick="nextQuestion()">Next</button>`;
+            loadQuestion();
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>

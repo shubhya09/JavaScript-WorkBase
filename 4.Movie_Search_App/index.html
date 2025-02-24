@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Search App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background-color: #141414;
+            color: white;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .search-box {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        input {
+            width: 70%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: red;
+            color: white;
+            cursor: pointer;
+        }
+        .movies-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .movie {
+            background-color: #222;
+            padding: 10px;
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+        .movie:hover {
+            transform: scale(1.05);
+        }
+        .movie img {
+            width: 100%;
+            border-radius: 10px;
+        }
+        .movie h3 {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Movie Search App</h1>
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search for a movie...">
+            <button onclick="searchMovies()">Search</button>
+        </div>
+        <div id="moviesContainer" class="movies-container"></div>
+    </div>
+
+    <script>
+       async function searchMovies() {
+    const query = document.getElementById("searchInput").value.trim();
+    if (!query) return;
+
+    const apiKey = "YOUR_OMDB_API_KEY"; // Replace this with your actual API key
+    const url = `https://www.omdbapi.com/?s=${query}&apikey=${apiKey}`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        console.log(data); // Debugging: Check API response
+
+        const moviesContainer = document.getElementById("moviesContainer");
+        moviesContainer.innerHTML = "";
+
+        if (data.Response === "True") {
+            data.Search.forEach(movie => {
+                const movieDiv = document.createElement("div");
+                movieDiv.classList.add("movie");
+                movieDiv.innerHTML = `
+                    <img src="${movie.Poster !== "N/A" ? movie.Poster : 'https://via.placeholder.com/200'}" alt="${movie.Title}">
+                    <h3>${movie.Title}</h3>
+                    <p>Year: ${movie.Year}</p>
+                `;
+                moviesContainer.appendChild(movieDiv);
+            });
+        } else {
+            moviesContainer.innerHTML = `<p>No movies found. Try a different search.</p>`;
+        }
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        document.getElementById("moviesContainer").innerHTML = "<p>Failed to load movies. Check your internet connection or API key.</p>";
+    }
+}
+
+    </script>
+</body>
+</html>
